@@ -70,7 +70,6 @@ func monitor(domain string) {
 	lines := strings.Split(string(content), "\n")
 	f, err := os.OpenFile(domain+".subs", os.O_APPEND|os.O_WRONLY, 0644)
 	check(err)
-
 	for _, x := range subdomains {
 		if !SliceElementExist(lines, x) {
 			if x != "" {
@@ -81,6 +80,7 @@ func monitor(domain string) {
 			}
 		}
 	}
+	f.Close()
 }
 
 func main() {
