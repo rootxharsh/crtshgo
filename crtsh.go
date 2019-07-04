@@ -68,6 +68,7 @@ func monitor(domain string) {
 	content, err := ioutil.ReadFile(domain + ".subs")
 	check(err)
 	lines := strings.Split(string(content), "\n")
+
 	f, err := os.OpenFile(domain+".subs", os.O_APPEND|os.O_WRONLY, 0644)
 	check(err)
 	for _, x := range subdomains {
@@ -81,6 +82,7 @@ func monitor(domain string) {
 		}
 	}
 	f.Close()
+	subdomains = subdomains[:0]
 }
 
 func main() {
