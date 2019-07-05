@@ -11,6 +11,7 @@ import (
 
 var newEntry bool
 var subdomains []string
+var latestsubdomains []string
 
 func check(e error) {
 	if e != nil {
@@ -47,7 +48,7 @@ func fetchSubDomains(domain string) {
 		newEntry = true
 		os.Create(domain + ".subs")
 	}
-
+	latestsubdomains = subdomains
 	f, err := os.OpenFile(domain+".subs", os.O_APPEND|os.O_WRONLY, 0644)
 	check(err)
 	if newEntry {
@@ -58,11 +59,10 @@ func fetchSubDomains(domain string) {
 	} else {
 		monitor(domain)
 	}
-
+	subdomains = subdomains[:0]
 }
 
 func monitor(domain string) {
-	//read file line by line and compare  with fetchedSubdomains slice, if a new element is found write it back to file and notify end user
 	bot_api_key := "REPLACE"
 	channel_name := "REPLACE"
 	content, err := ioutil.ReadFile(domain + ".subs")
@@ -70,9 +70,10 @@ func monitor(domain string) {
 	lines := strings.Split(string(content), "\n")
 	f, err := os.OpenFile(domain+".subs", os.O_APPEND|os.O_WRONLY, 0644)
 	check(err)
-	for _, x := range subdomains {
+	for _, x := range latestsubdomains {
 		if !SliceElementExist(lines, x) {
 			if x != "" {
+				fmt.Println("New subdomain found : " + x + "\n")
 				resp, err := http.Get("https://api.telegram.org/bot" + bot_api_key + "/sendMessage?chat_id=" + channel_name + "&text=New subdomain found : " + x)
 				check(err)
 				_ = resp
@@ -81,7 +82,6 @@ func monitor(domain string) {
 		}
 	}
 	f.Close()
-	subdomains = subdomains[:0]
 }
 
 func main() {
